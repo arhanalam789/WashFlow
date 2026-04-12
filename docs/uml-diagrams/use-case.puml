@@ -1,0 +1,66 @@
+@startuml
+!define RECTANGLE class
+
+' Actors
+actor "Student" as Student
+actor "Laundry Staff" as Staff
+actor "Admin" as Admin
+
+' System Boundary
+rectangle "WashFlow - Laundry Management System" {
+  ' Authentication Use Cases
+  usecase "Login" as UC1
+  usecase "Register" as UC2
+  usecase "View Profile" as UC3
+
+  ' Student Use Cases
+  usecase "Submit Laundry" as UC4
+  usecase "Track Status" as UC5
+  usecase "Confirm Pickup" as UC6
+
+  ' Staff Use Cases
+  usecase "View Pending Requests" as UC7
+  usecase "Collect Clothes" as UC8
+  usecase "Verify Count" as UC9
+  usecase "Update Status" as UC10
+  usecase "View Discrepancies" as UC11
+
+  ' Admin Use Cases
+  usecase "Manage Users" as UC12
+  usecase "Assign Bag Numbers" as UC13
+  usecase "View Analytics" as UC14
+  usecase "Create Users" as UC15
+}
+
+' Relationships
+Student -- UC1
+Student -- UC2
+Student -- UC3
+Student -- UC4
+Student -- UC5
+Student -- UC6
+
+Staff -- UC1
+Staff -- UC3
+Staff -- UC7
+Staff -- UC8
+Staff -- UC9
+Staff -- UC10
+Staff -- UC11
+
+Admin -- UC1
+Admin -- UC3
+Admin -- UC12
+Admin -- UC13
+Admin -- UC14
+Admin -- UC15
+
+' Include relationships
+UC4 ..> UC3 : <<include>>
+UC8 ..> UC7 : <<include>>
+UC9 ..> UC8 : <<include>>
+
+' Extend relationships
+UC5 ..> UC6 : <<extend>>
+
+@enduml

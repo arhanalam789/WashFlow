@@ -1,26 +1,125 @@
+/**
+ * Main App Component
+ *
+ * Handles routing and authentication state for the application.
+ */
+
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { getUser, removeToken, removeUser } from './services/api';
+
+// Pages
+import LoginPage from './pages/LoginPage';
+import StudentPage from './pages/StudentPage';
+import StaffPage from './pages/StaffPage';
+import AdminPage from './pages/AdminPage';
+
 function App() {
-  return (
-    <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-4">
-      <div className="bg-neutral-900 border border-neutral-800 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-6">
-        <div className="inline-flex items-center justify-center p-3 bg-blue-500/10 rounded-xl">
-          <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        </div>
-        <h1 className="text-3xl font-bold text-white tracking-tight">
-          WashFlow + Tailwind
-        </h1>
-        <p className="text-neutral-400 leading-relaxed text-sm">
-          React is set up with Tailwind CSS v4. Your project is ready for building premium experiences.
-        </p>
-        <div className="pt-4">
-          <button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 px-6 rounded-xl transition-all active:scale-95 cursor-pointer">
-            Get Started
-          </button>
-        </div>
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user is logged in on app load
+    const storedUser = getUser();
+    if (storedUser) {
+      setUser(storedUser);
+    }
+    setLoading(false);
+  }, []);
+
+  const handleLogout = () => {
+    removeToken();
+    removeUser();
+    setUser(null);
+  };
+
+  const getDashboardRoute = (userRole) => {
+    switch (userRole) {
+      case 'student':
+        return '/student';
+      case 'staff':
+        return '/staff';
+      case 'admin':
+        return '/admin';
+      default:
+        return '/login';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <p>Loading...</p>
       </div>
-    </div>
-  )
+    );
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Public route */}
+        <Route
+          path="/login"
+          element={
+            user ? (
+              <Navigate to={getDashboardRoute(user.role)} replace />
+            ) : (
+              <LoginPage onLogin={setUser} />
+            )
+          }
+        />
+
+        {/* Protected routes */}
+        <Route
+          path="/student"
+          element={
+            user?.role === 'student' ? (
+              <StudentPage user={user} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
+        <Route
+          path="/staff"
+          element={
+            user?.role === 'staff' ? (
+              <StaffPage user={user} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            user?.role === 'admin' ? (
+              <AdminPage user={user} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
+        {/* Default redirect */}
+        <Route
+          path="/"
+          element={
+            user ? (
+              <Navigate to={getDashboardRoute(user.role)} replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
+        {/* 404 - redirect to login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;

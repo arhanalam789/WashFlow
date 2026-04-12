@@ -1,0 +1,147 @@
+@startuml
+
+' Submit Laundry Request Sequence
+actor "Student" as Student
+participant "React Frontend" as React
+participant "Auth Middleware" as Auth
+participant "LaundryController" as Controller
+participant "LaundryService" as Service
+participant "LaundryRepository" as Repository
+participant "UserRepository" as UserRepo
+participant "Database" as DB
+
+Student -> React: Click "Submit Laundry"
+React -> React: Validate form data
+React -> Auth: POST /api/laundry/submit\n{studentId, declaredItems}
+
+Auth -> Auth: Verify JWT token
+Auth -> UserRepo: findById(userId)
+UserRepo -> DB: SELECT * FROM users\nWHERE _id = userId
+DB --> UserRepo: User document
+UserRepo --> Auth: User object
+Auth --> React: User authenticated
+
+React -> Controller: Forward request
+Controller -> Service: createRequest(laundryData)
+
+Service -> Service: Validate declaredItems >= 1
+Service -> UserRepo: findById(studentId)
+UserRepo -> DB: SELECT * FROM users\nWHERE _id = studentId
+DB --> UserRepo: Student document
+UserRepo --> Service: Student object
+
+Service -> Service: Check bagNumber assigned
+
+alt Bag number not assigned
+    Service --> Controller: Error: No bag assigned
+    Controller --> React: 400 Bad Request
+    React --> Student: Error message
+else Bag number assigned
+    Service -> Repository: create(laundryPayload)
+    Repository -> DB: INSERT INTO laundry_requests
+    DB --> Repository: Created laundry
+    Repository --> Service: Laundry object
+    Service --> Controller: Success response
+    Controller --> React: {requestId, status: "pending"}
+    React --> Student: Success message
+end
+
+@enduml
+
+' Staff Mark Collected Sequence
+actor "Staff" as Staff
+participant "React Frontend" as React
+participant "Role Middleware" as Role
+participant "LaundryController" as Controller
+participant "LaundryService" as Service
+participant "LaundryRepository" as Repository
+participant "Database" as DB
+
+Staff -> React: Click "Collect"
+React -> Role: PUT /api/laundry/:id/collect
+
+Role -> Role: Verify JWT token
+Role -> Role: Check user.role === "staff"
+Role --> React: Staff authenticated
+
+React -> Controller: Forward request
+Controller -> Service: markAsCollected(laundryId, staffId)
+
+Service -> Repository: findById(laundryId)
+Repository -> DB: SELECT * FROM laundry_requests\nWHERE _id = laundryId
+DB --> Repository: Laundry document
+Repository --> Service: Laundry object
+
+Service -> Service: Validate status === "pending"
+
+alt Status is not pending
+    Service --> Controller: Error: Invalid status
+    Controller --> React: 400 Bad Request
+else Status is pending
+    Service -> Repository: updateById(laundryId, {status: "collected"})
+    Repository -> DB: UPDATE laundry_requests\nSET status = "collected"
+    DB --> Repository: Updated laundry
+    Repository --> Service: Updated laundry
+    Service --> Controller: Success response
+    Controller --> React: {status: "collected"}
+    React --> Staff: Success message
+end
+
+@enduml
+
+' Student Confirm Pickup Sequence
+actor "Student" as Student
+participant "React Frontend" as React
+participant "Auth Middleware" as Auth
+participant "LaundryController" as Controller
+participant "LaundryService" as Service
+participant "LaundryRepository" as Repository
+participant "Database" as DB
+
+Student -> React: Click "Confirm Pickup"
+React -> Auth: PUT /api/laundry/:id/status\n{status: "delivered"}
+
+Auth -> Auth: Verify JWT token
+Auth --> React: Student authenticated
+
+React -> Controller: Forward request
+Controller -> Service: updateStatus(laundryId, "delivered", userId)
+
+Service -> Repository: findById(laundryId)
+Repository -> DB: SELECT * FROM laundry_requests\nWHERE _id = laundryId
+DB --> Repository: Laundry document
+Repository --> Service: Laundry object
+
+Service -> UserRepository: findById(userId)
+UserRepository -> DB: SELECT * FROM users\nWHERE _id = userId
+DB --> UserRepository: User document
+UserRepository --> Service: User object
+
+alt User role === "student" (Polymorphic branch)
+    Service -> Service: _handleStudentStatusUpdate()
+    Service -> Service: Validate status === "ready"
+    Service -> Service: Validate studentId matches
+
+    alt Validations pass
+        Service -> Repository: updateById(laundryId, {status: "delivered", deliveredAt: now})
+        Repository -> DB: UPDATE laundry_requests
+        DB --> Repository: Updated laundry
+        Repository --> Service: Updated laundry
+        Service --> Controller: Success
+        Controller --> React: {status: "delivered"}
+        React --> Student: Pickup confirmed
+    else Validation fails
+        Service --> Controller: Error
+        Controller --> React: 400 Bad Request
+    end
+else User role === "staff" (Polymorphic branch)
+    Service -> Service: _handleStaffStatusUpdate()
+    Service -> Service: Validate status transition
+    Service -> Repository: updateById()
+    Repository --> Service: Updated laundry
+    Service --> Controller: Success
+end
+
+@enduml
+
+@enduml

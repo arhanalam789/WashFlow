@@ -1,0 +1,218 @@
+@startuml
+
+' Abstract Base Classes
+abstract class BaseModel {
+  #_schema: Schema
+  #_modelName: String
+  +create(data): Promise<Document>
+  +findById(id): Promise<Document>
+  +findOne(conditions): Promise<Document>
+  +findMany(conditions, options): Promise<Array>
+  +updateById(id, updates): Promise<Document>
+  +deleteById(id): Promise<Document>
+  +count(conditions): Promise<number>
+}
+
+abstract class BaseRepository {
+  #model: BaseModel
+  +create(data): Promise<Document>
+  +findById(id): Promise<Document>
+  +findOne(conditions): Promise<Document>
+  +findMany(conditions, options): Promise<Array>
+  +updateById(id, updates): Promise<Document>
+  +deleteById(id): Promise<Document>
+}
+
+abstract class BaseService {
+  #repository: BaseRepository
+  +create(data, options): Promise<Object>
+  +findById(id, options): Promise<Object>
+  +findOne(conditions, options): Promise<Object>
+  +findMany(conditions, options): Promise<Array>
+  +updateById(id, updates, options): Promise<Object>
+  +deleteById(id, options): Promise<Object>
+}
+
+' User Models
+class UserModel {
+  +findByEmail(email): Promise<Document>
+  +findByRole(role, options): Promise<Array>
+  +findByStudentId(studentId): Promise<Document>
+  +findByBagNumber(bagNumber): Promise<Document>
+  +emailExists(email): Promise<boolean>
+  +studentIdExists(studentId): Promise<boolean>
+  +bagNumberExists(bagNumber): Promise<boolean>
+}
+
+class StudentModel {
+  +findByStudentId(studentId): Promise<Document>
+  +findByBagNumber(bagNumber): Promise<Document>
+  +getAllStudents(options): Promise<Array>
+  +getByRoomNumber(roomNumber): Promise<Array>
+  +assignBagNumber(studentId, bagNumber): Promise<Document>
+  +isBagNumberAssigned(bagNumber): Promise<boolean>
+  +createStudent(data): Promise<Document>
+}
+
+class StaffModel {
+  +findByEmployeeId(employeeId): Promise<Document>
+  +getAllStaff(options): Promise<Array>
+  +createStaff(data): Promise<Document>
+  +employeeIdExists(employeeId): Promise<boolean>
+}
+
+class AdminModel {
+  +findByAdminId(adminId): Promise<Document>
+  +getAllAdmins(options): Promise<Array>
+  +createAdmin(data): Promise<Document>
+  +getSystemStats(): Promise<Object>
+  +adminIdExists(adminId): Promise<boolean>
+}
+
+' Laundry Model
+class LaundryModel {
+  +findByRequestId(requestId): Promise<Document>
+  +findByStudentId(studentId, options): Promise<Array>
+  +findByStatus(status, options): Promise<Array>
+  +findPending(options): Promise<Array>
+  +findCollected(options): Promise<Array>
+  +findWashing(options): Promise<Array>
+  +findReady(options): Promise<Array>
+  +findWithDiscrepancy(options): Promise<Array>
+  +generateRequestId(sequenceNumber): String
+  +getAllStatusCounts(): Promise<Object>
+}
+
+' Repositories
+class UserRepository {
+  +create(data): Promise<Document>
+  +findByEmail(email): Promise<Document>
+  +findByRole(role, options): Promise<Array>
+  +findStudentById(studentId): Promise<Document>
+  +findStudentByBagNumber(bagNumber): Promise<Document>
+}
+
+class LaundryRepository {
+  +findByRequestId(requestId): Promise<Document>
+  +findByStudentId(studentId, options): Promise<Array>
+  +findByStatus(status, options): Promise<Array>
+  +findPending(options): Promise<Array>
+  +getCountByStatus(status): Promise<number>
+  +getAllStatusCounts(): Promise<Object>
+}
+
+' Services
+class AuthService {
+  -_jwtSecret: String
+  -_jwtExpiresIn: String
+  -_saltRounds: Number
+  +register(userData): Promise<Object>
+  +login(credentials): Promise<Object>
+  +verifyToken(token): Promise<Object>
+  +changePassword(userId, currentPassword, newPassword): Promise<Object>
+  +getUserById(userId): Promise<Object>
+  -_hashPassword(password): Promise<String>
+  -_comparePassword(password, hash): Promise<boolean>
+  -_generateToken(user): String
+}
+
+class LaundryService {
+  +createRequest(laundryData): Promise<Object>
+  +getStudentRequests(studentId): Promise<Array>
+  +getPendingRequests(): Promise<Array>
+  +markAsCollected(laundryId, staffId): Promise<Object>
+  +verifyItems(laundryId, receivedItems, staffId, notes): Promise<Object>
+  +updateStatus(laundryId, newStatus, userId): Promise<Object>
+  +getStatistics(): Promise<Object>
+  -_handleStudentStatusUpdate(laundry, newStatus, studentId): Promise<Object>
+  -_handleStaffStatusUpdate(laundry, newStatus, staffId): Promise<Object>
+}
+
+class AdminService {
+  +getAllUsers(filters, options): Promise<Array>
+  +createUser(userData): Promise<Object>
+  +assignBagNumber(studentId, bagNumber): Promise<Object>
+  +getAnalytics(): Promise<Object>
+  +deactivateUser(userId): Promise<Object>
+  +activateUser(userId): Promise<Object>
+  +deleteUser(userId): Promise<Object>
+}
+
+' Factory
+class UserFactory {
+  -_roleRegistry: Map
+  +createUser(role): Model
+  +registerRole(role, ModelClass): void
+  +isRoleRegistered(role): boolean
+  +getRegisteredRoles(): Array<String>
+  +getStudentModel(): StudentModel
+  +getStaffModel(): StaffModel
+  +getAdminModel(): AdminModel
+}
+
+' Inheritance Relationships
+BaseModel <|-- UserModel
+BaseModel <|-- LaundryModel
+UserModel <|-- StudentModel
+UserModel <|-- StaffModel
+UserModel <|-- AdminModel
+
+BaseRepository <|-- UserRepository
+BaseRepository <|-- LaundryRepository
+
+BaseService <|-- AuthService
+BaseService <|-- LaundryService
+BaseService <|-- AdminService
+
+' Dependency Relationships
+UserRepository ..> UserModel : uses
+LaundryRepository ..> LaundryModel : uses
+AuthService ..> UserRepository : uses
+LaundryService ..> LaundryRepository : uses
+LaundryService ..> UserRepository : uses
+AdminService ..> UserRepository : uses
+AdminService ..> LaundryRepository : uses
+UserFactory ..> StudentModel : creates
+UserFactory ..> StaffModel : creates
+UserFactory ..> AdminModel : creates
+
+' Notes
+note right of BaseModel
+  **OOP: Encapsulation**
+  Bundles data and methods
+  within a single unit
+end note
+
+note right of BaseRepository
+  **OOP: Abstraction**
+  Defines contract for
+  data access layer
+end note
+
+note right of StudentModel
+  **OOP: Inheritance**
+  Inherits from UserModel
+  Adds student-specific
+  functionality
+end note
+
+note right of LaundryService
+  **OOP: Polymorphism**
+  updateStatus() behaves
+  differently based on
+  user role
+end note
+
+note right of UserFactory
+  **Design Pattern: Factory**
+  Creates user models
+  based on role
+end note
+
+note right of BaseService
+  **SOLID: ISP**
+  Focused interface
+  with essential methods
+end note
+
+@enduml
