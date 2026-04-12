@@ -3,7 +3,6 @@ node_modules/
 
 # Environment variables
 .env
-<<<<<<< HEAD
 .env.local
 .env.*.local
 
@@ -32,7 +31,3 @@ Thumbs.db
 # Build
 dist/
 build/
-=======
-node_modules
-dist
->>>>>>> refs/remotes/origin/main
