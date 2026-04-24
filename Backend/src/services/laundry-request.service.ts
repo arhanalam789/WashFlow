@@ -168,6 +168,24 @@ export class LaundryRequestService {
     return this.laundryRequestRepository.findByIdWithRelations(String(request._id));
   }
 
+  async cancelRequest(requestId: string, userId: string, role: string) {
+    const request = await this.laundryRequestRepository.findById(requestId);
+
+    if (!request) {
+      throw new AppError(404, "Laundry request not found.");
+    }
+
+    if (role === "customer" && String(request.userId) !== userId) {
+      throw new AppError(403, "You can only cancel your own requests.");
+    }
+
+    if (request.status !== "pending") {
+      throw new AppError(400, "Only pending requests can be cancelled.");
+    }
+
+    await this.laundryRequestRepository.deleteById(requestId);
+  }
+
   private ensureManagerOwnsRequest(
     request: { washingCenterId?: unknown },
     assignedCenterId?: string | null,

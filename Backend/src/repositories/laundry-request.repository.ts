@@ -59,4 +59,8 @@ export class LaundryRequestRepository implements ILaundryRequestRepository {
   async save(request: InstanceType<typeof LaundryRequest>) {
     return request.save();
   }
+
+  async deleteById(id: string) {
+    return LaundryRequest.findByIdAndDelete(id);
+  }
 }

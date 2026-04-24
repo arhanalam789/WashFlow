@@ -8,4 +8,9 @@ export class WashingCenterController {
     const centers = await this.washingCenterService.listCenters();
     res.status(200).json(centers);
   };
+
+  create = async (req: Request, res: Response, _next: NextFunction) => {
+    const center = await this.washingCenterService.createCenter(req.body);
+    res.status(201).json(center);
+  };
 }

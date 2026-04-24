@@ -1,4 +1,5 @@
 import type { IWashingCenterRepository } from "../repositories/interfaces/washing-center-repository.interface";
+import { AppError } from "../utils/app-error";
 
 const defaultCenters = [
   {
@@ -34,6 +35,26 @@ export class WashingCenterService {
     }
 
     return this.washingCenterRepository.findAll();
+  }
+
+  async createCenter(input: {
+    centerName?: string;
+    location?: string;
+    contactPhone?: string;
+    operationStatus?: string;
+  }) {
+    const { centerName, location, contactPhone, operationStatus = "active" } = input;
+
+    if (!centerName || !location || !contactPhone) {
+      throw new AppError(400, "Center name, location, and contact phone are required.");
+    }
+
+    return this.washingCenterRepository.create({
+      centerName: centerName.trim(),
+      location: location.trim(),
+      contactPhone: contactPhone.trim(),
+      operationStatus,
+    });
   }
 
   async findCenterById(id: string) {

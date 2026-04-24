@@ -19,6 +19,7 @@ const signupDefaults = {
   email: '',
   password: '',
   role: 'customer',
+  assignedCenterId: '',
 }
 
 const loginDefaults = {
@@ -45,6 +46,13 @@ const notificationDefaults = {
   message: '',
 }
 
+const centerDefaults = {
+  centerName: '',
+  location: '',
+  contactPhone: '',
+  operationStatus: 'active',
+}
+
 function App() {
   const [authMode, setAuthMode] = useState('login')
   const [signupForm, setSignupForm] = useState(signupDefaults)
@@ -52,6 +60,7 @@ function App() {
   const [requestForm, setRequestForm] = useState(requestDefaults)
   const [concernForm, setConcernForm] = useState(concernDefaults)
   const [notificationForm, setNotificationForm] = useState(notificationDefaults)
+  const [centerForm, setCenterForm] = useState(centerDefaults)
   const [session, setSession] = useState(readStoredSession)
   const [centers, setCenters] = useState([])
   const [requests, setRequests] = useState([])
@@ -136,6 +145,10 @@ function App() {
     },
     [handleLogout, session?.token],
   )
+
+  useEffect(() => {
+    apiRequest('/api/washing-centers').then(setCenters).catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (session?.token) {
@@ -321,6 +334,41 @@ function App() {
     }
   }
 
+  const handleCancelRequest = async (requestId) => {
+    setIsBusy(true)
+    try {
+      await apiRequest(`/api/requests/${requestId}`, {
+        method: 'DELETE',
+        token: session.token,
+      })
+      setFeedback('Request cancelled successfully.')
+      await loadWorkspace()
+    } catch (error) {
+      setFeedback(error.message)
+    } finally {
+      setIsBusy(false)
+    }
+  }
+
+  const handleCreateCenter = async (event) => {
+    event.preventDefault()
+    setIsBusy(true)
+    try {
+      await apiRequest('/api/washing-centers', {
+        method: 'POST',
+        token: session.token,
+        body: centerForm,
+      })
+      setCenterForm(centerDefaults)
+      setFeedback('Washing center created successfully.')
+      await loadWorkspace()
+    } catch (error) {
+      setFeedback(error.message)
+    } finally {
+      setIsBusy(false)
+    }
+  }
+
   const handleSendNotification = async (event) => {
     event.preventDefault()
     const selectedRequest = requests.find(
@@ -386,6 +434,7 @@ function App() {
           formatDateTime={formatDateTime}
           formatRequestStatus={formatRequestStatus}
           isBusy={isBusy}
+          onCancelRequest={handleCancelRequest}
           onConfirmConcern={handleConfirmConcern}
           onCreateRequest={handleCreateRequest}
           requestForm={requestForm}
@@ -408,15 +457,18 @@ function App() {
         )
       : (
           <AdminPage
+            centerForm={centerForm}
             centers={centers}
             formatDateTime={formatDateTime}
             formatRequestStatus={formatRequestStatus}
             isBusy={isBusy}
             notificationForm={notificationForm}
             onAssignRequest={handleAssignRequest}
+            onCreateCenter={handleCreateCenter}
             onSelectDraftCenter={handleSelectDraftCenter}
             onSendNotification={handleSendNotification}
             requests={requests}
+            setCenterForm={setCenterForm}
             setNotificationForm={setNotificationForm}
           />
         )
@@ -425,6 +477,7 @@ function App() {
     return (
       <AuthPage
         authMode={authMode}
+        centers={centers}
         feedback={feedback}
         isBusy={isBusy}
         loginForm={loginForm}

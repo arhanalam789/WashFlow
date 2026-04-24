@@ -2,6 +2,7 @@ export function CustomerPage({
   requestForm,
   setRequestForm,
   onCreateRequest,
+  onCancelRequest,
   centers,
   requests,
   concerns,
@@ -105,6 +106,18 @@ export function CustomerPage({
                   Washing center:{' '}
                   {request.washingCenterId?.centerName || 'Not assigned yet'}
                 </p>
+                {request.status === 'pending' ? (
+                  <div className="action-row" style={{ gridTemplateColumns: 'auto' }}>
+                    <button
+                      className="secondary-button"
+                      disabled={isBusy}
+                      onClick={() => onCancelRequest(request._id)}
+                      type="button"
+                    >
+                      Cancel request
+                    </button>
+                  </div>
+                ) : null}
               </article>
             ))
           )}

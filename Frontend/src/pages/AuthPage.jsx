@@ -10,6 +10,7 @@ export function AuthPage({
   onAuth,
   isBusy,
   feedback,
+  centers,
 }) {
   return (
     <main className="auth-shell">
@@ -91,7 +92,7 @@ export function AuthPage({
                 <select
                   value={signupForm.role}
                   onChange={(event) =>
-                    setSignupForm({ ...signupForm, role: event.target.value })
+                    setSignupForm({ ...signupForm, role: event.target.value, assignedCenterId: '' })
                   }
                 >
                   <option value="customer">Customer</option>
@@ -99,6 +100,25 @@ export function AuthPage({
                   <option value="admin">Admin</option>
                 </select>
               </label>
+
+              {signupForm.role === 'manager' ? (
+                <label>
+                  <span>Assigned washing center</span>
+                  <select
+                    value={signupForm.assignedCenterId}
+                    onChange={(event) =>
+                      setSignupForm({ ...signupForm, assignedCenterId: event.target.value })
+                    }
+                  >
+                    <option value="">Auto-assign first available</option>
+                    {centers.map((center) => (
+                      <option key={center._id} value={center._id}>
+                        {center.centerName}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
             </>
           ) : (
             <>

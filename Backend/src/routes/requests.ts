@@ -21,5 +21,10 @@ requestRouter.patch(
   requireAuth(["manager", "admin"]),
   asyncHandler(laundryRequestController.updateStatus),
 );
+requestRouter.delete(
+  "/:id",
+  requireAuth(["customer", "admin"]),
+  asyncHandler(laundryRequestController.cancel),
+);
 
 export default requestRouter;

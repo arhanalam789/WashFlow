@@ -45,4 +45,14 @@ export class LaundryRequestController {
     );
     res.status(200).json(request);
   };
+
+  cancel = async (req: Request, res: Response, _next: NextFunction) => {
+    const authRequest = req as AuthenticatedRequest;
+    await this.laundryRequestService.cancelRequest(
+      String(req.params.id),
+      authRequest.user!.userId,
+      authRequest.user!.role,
+    );
+    res.status(200).json({ message: "Request cancelled successfully." });
+  };
 }

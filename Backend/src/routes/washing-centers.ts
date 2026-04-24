@@ -5,6 +5,11 @@ import { asyncHandler } from "../utils/async-handler";
 
 const washingCenterRouter = Router();
 
-washingCenterRouter.get("/", requireAuth(), asyncHandler(washingCenterController.list));
+washingCenterRouter.get("/", asyncHandler(washingCenterController.list));
+washingCenterRouter.post(
+  "/",
+  requireAuth(["admin"]),
+  asyncHandler(washingCenterController.create),
+);
 
 export default washingCenterRouter;

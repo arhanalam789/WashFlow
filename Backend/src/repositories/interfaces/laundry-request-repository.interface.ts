@@ -14,4 +14,5 @@ export interface ILaundryRequestRepository {
     assignedCenterId?: string | null,
   ): Promise<any>;
   save(request: any): Promise<any>;
+  deleteById(id: string): Promise<any>;
 }

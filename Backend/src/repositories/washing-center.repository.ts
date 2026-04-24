@@ -24,4 +24,13 @@ export class WashingCenterRepository implements IWashingCenterRepository {
   async findById(id: string) {
     return WashingCenter.findById(id);
   }
+
+  async create(input: {
+    centerName: string;
+    location: string;
+    contactPhone: string;
+    operationStatus: string;
+  }) {
+    return WashingCenter.create(input);
+  }
 }
