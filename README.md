@@ -214,7 +214,8 @@ cd frontend && npm run lint
 
 Current repository attribution:
 
-- `Arhan Alam` — project architecture, backend implementation, frontend implementation, diagrams, report drafting, and workflow verification
+- `Arhan Alam` — project architecture, backend implementation, frontend implementation,
+- Abhinav Choudhary - class Diagram, Er Diagram, Sequence Diagram, Workflow verification
 
 If additional team members are part of the final course submission, add them here before submission.
 
