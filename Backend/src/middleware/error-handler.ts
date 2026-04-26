@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express"
 import { AppError } from "../utils/app-error";
 
 export const notFoundHandler = (
@@ -23,7 +23,7 @@ export const errorHandler = (
     return;
   }
 
-  console.error("Unhandled application error:", error);
+  console.error("Unhandled application error:", error)
 
   res.status(500).json({
     message: "Internal server error.",
