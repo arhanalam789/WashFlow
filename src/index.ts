@@ -1,5 +1,5 @@
-export * from "./core/Auditable";
-export * from "./core/Entity";
+export * from "./core/Auditable"
+export * from "./core/Entity"
 export * from "./domain/ConcernTicket";
 export * from "./domain/LaundryRequest";
 export * from "./domain/Notification";
