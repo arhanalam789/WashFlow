@@ -37,12 +37,12 @@ flowchart LR
     manager --- uc6
     manager --- uc7
     manager --- uc8
+    manager --- uc10
 
     admin --- uc12
+    admin --- uc13
 
     uc2 -.-> uc9
-    uc2 -.-> uc10
     uc8 -.-> uc12
-    uc12 -.-> uc13
     uc4 -.-> uc11
 ```

@@ -5,6 +5,7 @@ export interface AuthTokenPayload {
   userId: string;
   email: string;
   role: UserRole;
+  assignedCenterId?: string | null;
 }
 
 export interface AuthenticatedRequest extends Request {

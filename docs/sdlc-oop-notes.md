@@ -7,9 +7,10 @@
 - Customer can register or log in.
 - Customer can create a laundry request and specify pickup details.
 - Customer can track request status and view notifications.
-- Washing center manager can view incoming requests, verify clothes count, and mark requests completed.
+- Washing center manager can view incoming requests for their assigned center, verify clothes count, and mark requests completed.
 - Admin or service operator can assign requests and send notifications.
 - Concern tickets are raised when there is a mismatch or service issue.
+- Managers are linked to washing centers so role-based access is not only role-based but ownership-aware.
 
 ### 2. System Design
 
@@ -17,6 +18,7 @@
 - Relationships and cardinalities are captured in the ER diagram.
 - Actor interactions are captured in the use case diagram.
 - Shared behavior is centralized in an abstract base entity.
+- Runtime persistence uses MongoDB/Mongoose; the SQL schema is retained as a conceptual relational schema.
 
 ### 3. Implementation Planning
 
@@ -29,6 +31,7 @@
 - Entity methods can be unit tested independently.
 - Observer interactions can be tested through status changes on `LaundryRequest`.
 - Schema constraints can be validated with integration tests later.
+- Backend service tests validate manager ownership, status transitions, notification creation, and concern handling.
 
 ## OOP Mapping
 

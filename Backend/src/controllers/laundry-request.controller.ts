@@ -10,6 +10,7 @@ export class LaundryRequestController {
     const requests = await this.laundryRequestService.listByRole(
       authRequest.user!.userId,
       authRequest.user!.role,
+      authRequest.user!.assignedCenterId,
     );
     res.status(200).json(requests);
   };
@@ -32,9 +33,15 @@ export class LaundryRequestController {
   };
 
   updateStatus = async (req: Request, res: Response, _next: NextFunction) => {
+    const authRequest = req as AuthenticatedRequest;
     const request = await this.laundryRequestService.updateStatus(
       String(req.params.id),
       req.body.status,
+      {
+        userId: authRequest.user!.userId,
+        role: authRequest.user!.role,
+        assignedCenterId: authRequest.user!.assignedCenterId,
+      },
     );
     res.status(200).json(request);
   };

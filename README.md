@@ -2,6 +2,8 @@
 
 WashFlow is a laundry management website built with React on the frontend and Node.js, Express, TypeScript, and MongoDB on the backend. The system supports role-based workflows for customers, managers, and admins, including request creation, washing center assignment, request tracking, notifications, and concern ticket confirmation.
 
+The implementation uses MongoDB/Mongoose as the real persistence layer. The SQL file under `db/` is kept as a conceptual relational schema draft for ER-diagram traceability, not as the runtime database.
+
 ## Project Overview
 
 The project was structured to satisfy course requirements around:
@@ -81,7 +83,7 @@ WashFlow/
 - Customer can track request status
 - Customer can view notifications and mark them as read
 - Customer can confirm concern tickets
-- Manager can view incoming assigned requests
+- Manager can view incoming requests for their assigned washing center
 - Manager can verify clothes count by moving requests into progress
 - Manager can mark requests as completed
 - Manager can raise concern tickets
@@ -106,6 +108,7 @@ This structure improves maintainability and supports SOLID principles by keeping
 - `Repository Pattern`: database access is encapsulated inside repository classes under `backend/src/repositories`
 - `Factory Pattern`: notification messages and types are created through `backend/src/factories/notification.factory.ts`
 - `Dependency Injection / Composition Root`: shared dependencies are wired in `backend/src/container/index.ts`
+- `Observer Pattern`: demonstrated in the root `src/` domain model for OOP/class-diagram requirements; the running backend uses service-triggered notification creation
 
 ## OOP Concepts Used
 
@@ -113,6 +116,13 @@ This structure improves maintainability and supports SOLID principles by keeping
 - `Abstraction`: repository interfaces in `backend/src/repositories/interfaces` define contracts for data access
 - `Inheritance`: the documentation/domain layer under root `src/` uses shared base entity abstractions
 - `Polymorphism`: repository implementations satisfy interchangeable repository contracts used by services
+
+## Diagram To Code Mapping
+
+- Use case diagram: maps to backend routes under `Backend/src/routes`, for example `POST /api/requests`, `PATCH /api/requests/:id/assign`, `PATCH /api/requests/:id/status`, `POST /api/concerns`, and `GET /api/notifications`.
+- ER diagram: maps to Mongoose models under `Backend/src/models`. MongoDB `ObjectId` references implement the conceptual PK/FK relationships from the diagram.
+- Class diagram: maps mainly to the root `src/` domain classes, which demonstrate OOP concepts separately from the Mongoose persistence models.
+- Sequence diagram: follows the runtime flow from customer request creation to admin assignment, manager processing, concern handling, and notification creation.
 
 ## Setup And Installation
 
@@ -138,6 +148,8 @@ JWT_SECRET=washflow-dev-secret
 PORT=5001
 ```
 
+You can copy `Backend/.env.example` as a starting point.
+
 ### 3. Frontend setup
 
 ```bash
@@ -150,6 +162,8 @@ Optional frontend env:
 ```env
 VITE_API_BASE_URL=http://127.0.0.1:5001
 ```
+
+You can copy `Frontend/.env.example` as a starting point.
 
 ## How To Run The Project
 
@@ -171,6 +185,7 @@ npm run dev
 
 ```bash
 cd backend && npm run build
+cd backend && npm test
 cd frontend && npm run build
 cd frontend && npm run lint
 ```

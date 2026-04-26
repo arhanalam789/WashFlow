@@ -1,7 +1,6 @@
 import { AppError } from "../utils/app-error";
 import type { IConcernTicketRepository } from "../repositories/interfaces/concern-ticket-repository.interface";
 import type { ILaundryRequestRepository } from "../repositories/interfaces/laundry-request-repository.interface";
-import type { NotificationService } from "./notification.service";
 
 interface CreateConcernInput {
   requestId?: string;
@@ -10,17 +9,32 @@ interface CreateConcernInput {
   receivedCount?: number;
   note?: string;
   raisedByManagerId: string;
+  actorRole: string;
+  actorAssignedCenterId?: string | null;
+}
+
+interface ConcernNotificationWriter {
+  createConcernRaised(userId: string, requestId: string): Promise<any>;
+  createConcernConfirmed(userId: string, requestId: string): Promise<any>;
 }
 
 export class ConcernService {
   constructor(
     private readonly concernTicketRepository: IConcernTicketRepository,
     private readonly laundryRequestRepository: ILaundryRequestRepository,
-    private readonly notificationService: NotificationService,
+    private readonly notificationService: ConcernNotificationWriter,
   ) {}
 
-  async listByRole(userId: string, role: string) {
-    return this.concernTicketRepository.listByRole(userId, role);
+  async listByRole(
+    userId: string,
+    role: string,
+    assignedCenterId?: string | null,
+  ) {
+    return this.concernTicketRepository.listByRole(
+      userId,
+      role,
+      assignedCenterId,
+    );
   }
 
   async createConcern(input: CreateConcernInput) {
@@ -31,6 +45,8 @@ export class ConcernService {
       receivedCount,
       note,
       raisedByManagerId,
+      actorRole,
+      actorAssignedCenterId,
     } = input;
 
     if (!requestId || !type) {
@@ -41,6 +57,10 @@ export class ConcernService {
 
     if (!request) {
       throw new AppError(404, "Related request not found.");
+    }
+
+    if (actorRole === "manager") {
+      this.ensureManagerOwnsRequest(request, actorAssignedCenterId);
     }
 
     const concern = await this.concernTicketRepository.create({
@@ -61,6 +81,25 @@ export class ConcernService {
     );
 
     return this.concernTicketRepository.findByIdWithRelations(String(concern._id));
+  }
+
+  private ensureManagerOwnsRequest(
+    request: { washingCenterId?: unknown },
+    assignedCenterId?: string | null,
+  ) {
+    if (!assignedCenterId) {
+      throw new AppError(
+        403,
+        "Managers must be assigned to a washing center before raising concerns.",
+      );
+    }
+
+    if (String(request.washingCenterId || "") !== assignedCenterId) {
+      throw new AppError(
+        403,
+        "Managers can only raise concerns for their assigned washing center.",
+      );
+    }
   }
 
   async confirmConcern(concernId: string, userId: string, role: string) {

@@ -27,7 +27,7 @@ const notificationService = new NotificationService(
   notificationRepository,
   notificationFactory,
 );
-const authService = new AuthService(userRepository);
+const authService = new AuthService(userRepository, washingCenterService);
 const laundryRequestService = new LaundryRequestService(
   laundryRequestRepository,
   washingCenterService,

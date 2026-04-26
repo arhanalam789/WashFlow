@@ -46,7 +46,10 @@ export function ManagerPage({
                 <div className="action-row">
                   <button
                     className="secondary-button"
-                    disabled={isBusy}
+                    disabled={
+                      isBusy ||
+                      !['assigned', 'concern_raised'].includes(request.status)
+                    }
                     onClick={() => onUpdateStatus(request._id, 'in_progress')}
                     type="button"
                   >
@@ -54,7 +57,10 @@ export function ManagerPage({
                   </button>
                   <button
                     className="secondary-button"
-                    disabled={isBusy}
+                    disabled={
+                      isBusy ||
+                      !['in_progress', 'concern_raised'].includes(request.status)
+                    }
                     onClick={() => onUpdateStatus(request._id, 'completed')}
                     type="button"
                   >

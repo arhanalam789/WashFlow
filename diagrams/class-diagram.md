@@ -28,6 +28,7 @@ classDiagram
         +email: string
         +passwordHash: string
         +role: UserRole
+        +assignedCenterId: string
     }
 
     class WashingCenter {
@@ -77,6 +78,7 @@ classDiagram
     Entity <|-- Notification
     RequestObserver <|.. NotificationService
     User "1" --> "*" LaundryRequest : places
+    WashingCenter "1" --> "*" User : manages
     WashingCenter "1" --> "*" LaundryRequest : handles
     LaundryRequest "1" --> "*" ConcernTicket : generates
     LaundryRequest "1" --> "*" Notification : triggers

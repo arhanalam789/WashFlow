@@ -1,4 +1,4 @@
-import { Schema, model, models } from "mongoose";
+import { Schema, model, models, Types } from "mongoose";
 
 export type UserRole = "customer" | "manager" | "admin";
 
@@ -7,6 +7,7 @@ export interface UserDocument {
   email: string;
   passwordHash: string;
   role: UserRole;
+  assignedCenterId?: Types.ObjectId | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +34,11 @@ const userSchema = new Schema<UserDocument>(
       type: String,
       enum: ["customer", "manager", "admin"],
       default: "customer",
+    },
+    assignedCenterId: {
+      type: Schema.Types.ObjectId,
+      ref: "WashingCenter",
+      default: null,
     },
   },
   {

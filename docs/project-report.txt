@@ -72,6 +72,8 @@ System Design Optimization
 3. Role-based query filtering:
    Customer, manager, and admin data views are filtered at the service/repository
    level so the frontend receives only the relevant records.
+   Managers are linked to an assigned washing center and can process only that
+   center's requests.
 
 4. Notification factory:
    Notification creation is centralized to reduce duplicated branching logic and
@@ -80,6 +82,10 @@ System Design Optimization
 5. Composition root:
    Dependencies are wired once in backend/src/container/index.ts so services and
    controllers receive their collaborators in a consistent way.
+
+6. Status transition validation:
+   Laundry requests follow controlled status movement instead of allowing random
+   jumps between pending, assigned, in-progress, completed, and concern states.
 
 OOP Concepts Used
 -----------------
@@ -132,6 +138,21 @@ Design Patterns Implemented
 
    Where:
    - backend/src/container/index.ts
+
+4. Observer Pattern
+   Why:
+   - To demonstrate how request-domain events can notify interested observers
+   - To satisfy the OOP class diagram requirement without coupling the core
+     LaundryRequest class to a concrete notification storage class
+
+   Where:
+   - src/domain/LaundryRequest.ts
+   - src/interfaces/RequestObserver.ts
+   - src/services/NotificationService.ts
+
+   Note:
+   - The running backend creates notifications through service methods.
+   - The root src/ domain model demonstrates Observer as an OOP design artifact.
 
 SOLID Principles
 ----------------
@@ -224,10 +245,17 @@ Admin:
 ER / Domain Entities
 --------------------
 - User
+  - includes assignedCenterId for washing center managers
 - WashingCenter
 - LaundryRequest
 - ConcernTicket
 - Notification
+
+Database Note
+-------------
+The implementation uses MongoDB and Mongoose ObjectId references. The SQL schema
+in db/schema.sql is a conceptual relational draft used to explain ER structure,
+primary keys, foreign keys, and cardinality in a familiar system design format.
 
 Test Cases And Results
 ----------------------
@@ -260,6 +288,19 @@ Test Cases And Results
 
 10. Mark notification as read
     Result: Passed
+
+11. Automated service tests
+    Result: Passed
+
+Automated Tests Added
+---------------------
+- Manager request listing passes assigned center ownership into the repository.
+- Managers cannot update requests from another washing center.
+- Invalid request status transitions are rejected.
+- Valid assigned-to-in-progress status updates create notifications.
+- Managers cannot raise concerns for another washing center.
+- Valid concern creation moves the request to concern_raised and notifies the
+  customer.
 
 Latest Live Verification Notes
 ------------------------------

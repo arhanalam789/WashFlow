@@ -19,9 +19,35 @@ export class ConcernTicketRepository implements IConcernTicketRepository {
       .populate("raisedByManagerId", "name email role");
   }
 
-  async listByRole(userId: string, role: string) {
+  async listByRole(
+    userId: string,
+    role: string,
+    assignedCenterId?: string | null,
+  ) {
     if (role === "customer") {
       const requests = await LaundryRequest.find({ userId }).select("_id");
+      const requestIds = requests.map((request) => request._id);
+
+      return ConcernTicket.find({ requestId: { $in: requestIds } })
+        .sort({ createdAt: -1 })
+        .populate({
+          path: "requestId",
+          populate: [
+            { path: "userId", select: "name email role" },
+            { path: "washingCenterId", select: "centerName location operationStatus" },
+          ],
+        })
+        .populate("raisedByManagerId", "name email role");
+    }
+
+    if (role === "manager") {
+      if (!assignedCenterId) {
+        return [];
+      }
+
+      const requests = await LaundryRequest.find({
+        washingCenterId: assignedCenterId,
+      }).select("_id");
       const requestIds = requests.map((request) => request._id);
 
       return ConcernTicket.find({ requestId: { $in: requestIds } })

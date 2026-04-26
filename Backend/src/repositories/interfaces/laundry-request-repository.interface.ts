@@ -8,6 +8,10 @@ export interface ILaundryRequestRepository {
     preferredPickupDate: Date;
     status: string;
   }): Promise<any>;
-  listByRole(userId: string, role: string): Promise<any>;
+  listByRole(
+    userId: string,
+    role: string,
+    assignedCenterId?: string | null,
+  ): Promise<any>;
   save(request: any): Promise<any>;
 }

@@ -10,6 +10,7 @@ erDiagram
         string email
         string passwordHash
         string role
+        string assignedCenterId FK
         datetime createdAt
     }
 
@@ -39,6 +40,9 @@ erDiagram
         string type
         int expectedCount
         int receivedCount
+        string note
+        boolean customerConfirmed
+        datetime confirmedAt
         datetime createdAt
         datetime updatedAt
     }
@@ -53,6 +57,7 @@ erDiagram
         datetime sentAt
     }
 
+    WASHING_CENTER ||--o{ USER : manages
     USER ||--o{ LAUNDRY_REQUEST : places
     WASHING_CENTER ||--o{ LAUNDRY_REQUEST : handles
     LAUNDRY_REQUEST ||--o{ CONCERN_TICKET : generates

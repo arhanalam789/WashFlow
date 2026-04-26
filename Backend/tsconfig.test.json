@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./dist-test",
+    "target": "ES2022",
+    "types": ["node"]
+  },
+  "include": [
+    "src/services/laundry-request.service.ts",
+    "src/services/concern.service.ts",
+    "src/utils/app-error.ts",
+    "src/repositories/interfaces/laundry-request-repository.interface.ts",
+    "src/repositories/interfaces/concern-ticket-repository.interface.ts",
+    "test"
+  ]
+}

@@ -9,12 +9,14 @@ export interface IUserRepository {
     email: string;
     passwordHash: string;
     role: UserRole;
+    assignedCenterId?: string | null;
   }): Promise<any>;
   toPublic(user: UserDocument & { _id: unknown }): {
     id: string;
     name: string;
     email: string;
     role: UserRole;
+    assignedCenterId?: string | null;
     createdAt: Date;
   };
 }

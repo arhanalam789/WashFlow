@@ -6,6 +6,7 @@ interface CreateUserInput {
   email: string;
   passwordHash: string;
   role: UserRole;
+  assignedCenterId?: string | null;
 }
 
 export class UserRepository implements IUserRepository {
@@ -18,7 +19,7 @@ export class UserRepository implements IUserRepository {
   }
 
   async findPublicById(id: string) {
-    return User.findById(id).select("_id name email role createdAt");
+    return User.findById(id).select("_id name email role assignedCenterId createdAt");
   }
 
   async create(input: CreateUserInput) {
@@ -31,6 +32,9 @@ export class UserRepository implements IUserRepository {
       name: user.name,
       email: user.email,
       role: user.role,
+      assignedCenterId: user.assignedCenterId
+        ? String(user.assignedCenterId)
+        : null,
       createdAt: user.createdAt,
     };
   }

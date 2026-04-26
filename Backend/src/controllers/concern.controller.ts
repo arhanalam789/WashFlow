@@ -10,6 +10,7 @@ export class ConcernController {
     const concerns = await this.concernService.listByRole(
       authRequest.user!.userId,
       authRequest.user!.role,
+      authRequest.user!.assignedCenterId,
     );
     res.status(200).json(concerns);
   };
@@ -19,6 +20,8 @@ export class ConcernController {
     const concern = await this.concernService.createConcern({
       ...req.body,
       raisedByManagerId: authRequest.user!.userId,
+      actorRole: authRequest.user!.role,
+      actorAssignedCenterId: authRequest.user!.assignedCenterId,
     });
     res.status(201).json(concern);
   };

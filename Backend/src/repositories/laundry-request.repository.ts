@@ -31,7 +31,11 @@ export class LaundryRequestRepository implements ILaundryRequestRepository {
     return LaundryRequest.create(input);
   }
 
-  async listByRole(userId: string, role: string) {
+  async listByRole(
+    userId: string,
+    role: string,
+    assignedCenterId?: string | null,
+  ) {
     const query: Record<string, unknown> = {};
 
     if (role === "customer") {
@@ -39,7 +43,11 @@ export class LaundryRequestRepository implements ILaundryRequestRepository {
     }
 
     if (role === "manager") {
-      query.washingCenterId = { $ne: null };
+      if (!assignedCenterId) {
+        return [];
+      }
+
+      query.washingCenterId = assignedCenterId;
     }
 
     return LaundryRequest.find(query)

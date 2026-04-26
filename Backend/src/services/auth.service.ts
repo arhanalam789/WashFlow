@@ -6,11 +6,17 @@ import type { IUserRepository } from "../repositories/interfaces/user-repository
 
 const jwtSecret = process.env.JWT_SECRET || "washflow-dev-secret";
 
+interface WashingCenterSelector {
+  findCenterById(id: string): Promise<any>;
+  listCenters(): Promise<any[]>;
+}
+
 interface SignupInput {
   name?: string;
   email?: string;
   password?: string;
   role?: UserRole;
+  assignedCenterId?: string | null;
 }
 
 interface LoginInput {
@@ -19,7 +25,10 @@ interface LoginInput {
 }
 
 export class AuthService {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly washingCenterService?: WashingCenterSelector,
+  ) {}
 
   private isValidEmail(email: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -47,11 +56,13 @@ export class AuthService {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
+    const assignedCenterId = await this.resolveAssignedCenter(role, input.assignedCenterId);
     const user = await this.userRepository.create({
       name: name.trim(),
       email: email.toLowerCase(),
       passwordHash,
       role,
+      assignedCenterId,
     });
 
     return this.buildAuthResponse(user);
@@ -94,13 +105,19 @@ export class AuthService {
     email: string;
     role: UserRole;
     name: string;
+    assignedCenterId?: unknown;
     createdAt: Date;
   }) {
+    const assignedCenterId = user.assignedCenterId
+      ? String(user.assignedCenterId)
+      : null;
+
     const token = jwt.sign(
       {
         userId: String(user._id),
         email: user.email,
         role: user.role,
+        assignedCenterId,
       },
       jwtSecret,
       { expiresIn: "1d" },
@@ -114,8 +131,41 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.role,
+        assignedCenterId,
         createdAt: user.createdAt,
       },
     };
+  }
+
+  private async resolveAssignedCenter(
+    role: UserRole,
+    assignedCenterId?: string | null,
+  ) {
+    if (role !== "manager") {
+      return null;
+    }
+
+    if (!this.washingCenterService) {
+      return assignedCenterId || null;
+    }
+
+    if (assignedCenterId) {
+      const center = await this.washingCenterService.findCenterById(assignedCenterId);
+
+      if (!center) {
+        throw new AppError(404, "Assigned washing center was not found.");
+      }
+
+      return assignedCenterId;
+    }
+
+    const centers = await this.washingCenterService.listCenters();
+    const firstCenter = centers[0];
+
+    if (!firstCenter?._id) {
+      throw new AppError(400, "At least one washing center is required for managers.");
+    }
+
+    return String(firstCenter._id);
   }
 }
