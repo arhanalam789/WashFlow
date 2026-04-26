@@ -4,7 +4,7 @@ WashFlow is a laundry management website built with React on the frontend and No
 
 The implementation uses MongoDB/Mongoose as the real persistence layer. The SQL file under "db/" is kept as a conceptual relational schema draft for ER-diagram traceability, not as the runtime database.
 
-## Project Overview
+# Project Overview
 
 The project was structured to satisfy course requirements around:
 
@@ -15,16 +15,16 @@ The project was structured to satisfy course requirements around:
 - UML and ER documentation
 - a working demo-ready full-stack application
 
-## Tech Stack
+# Tech Stack
 
-### Frontend
+## Frontend
 
 - React
 - Vite
 - JavaScript / JSX
 - CSS
 
-### Backend
+## Backend
 
 - Node.js
 - Express
@@ -34,14 +34,14 @@ The project was structured to satisfy course requirements around:
 - JWT authentication
 - bcryptjs
 
-### Tools
+## Tools
 
 - Git and GitHub
 - ESLint
 - TypeScript compiler
 - CUPS text-to-PDF generation for the report
 
-## Folder Structure
+# Folder Structure
 
 ```text
 WashFlow/
@@ -76,7 +76,7 @@ WashFlow/
 └── report.pdf
 ```
 
-## Features
+# Features
 
 - Register and log in as `customer`, `manager`, or `admin`
 - Customer can create a laundry request and specify pickup details
@@ -90,7 +90,7 @@ WashFlow/
 - Admin can assign requests to washing centers
 - Admin can send customer notifications
 
-## Architecture Explanation
+# Architecture Explanation
 
 WashFlow uses a layered backend architecture:
 
@@ -103,37 +103,37 @@ WashFlow uses a layered backend architecture:
 
 This structure improves maintainability and supports SOLID principles by keeping responsibilities separated and dependencies explicit.
 
-## Design Patterns Used
+# Design Patterns Used
 
 - `Repository Pattern`: database access is encapsulated inside repository classes under `backend/src/repositories`
 - `Factory Pattern`: notification messages and types are created through `backend/src/factories/notification.factory.ts`
 - `Dependency Injection / Composition Root`: shared dependencies are wired in `backend/src/container/index.ts`
 - `Observer Pattern`: demonstrated in the root `src/` domain model for OOP/class-diagram requirements; the running backend uses service-triggered notification creation
 
-## OOP Concepts Used
+# OOP Concepts Used
 
 - `Encapsulation`: business rules are encapsulated inside service classes such as `AuthService`, `LaundryRequestService`, and `ConcernService`
 - `Abstraction`: repository interfaces in `backend/src/repositories/interfaces` define contracts for data access
 - `Inheritance`: the documentation/domain layer under root `src/` uses shared base entity abstractions
 - `Polymorphism`: repository implementations satisfy interchangeable repository contracts used by services
 
-## Diagram To Code Mapping
+# Diagram To Code Mapping
 
 - Use case diagram: maps to backend routes under `Backend/src/routes`, for example `POST /api/requests`, `PATCH /api/requests/:id/assign`, `PATCH /api/requests/:id/status`, `POST /api/concerns`, and `GET /api/notifications`.
 - ER diagram: maps to Mongoose models under `Backend/src/models`. MongoDB `ObjectId` references implement the conceptual PK/FK relationships from the diagram.
 - Class diagram: maps mainly to the root `src/` domain classes, which demonstrate OOP concepts separately from the Mongoose persistence models.
 - Sequence diagram: follows the runtime flow from customer request creation to admin assignment, manager processing, concern handling, and notification creation.
 
-## Setup And Installation
+# Setup And Installation
 
-### 1. Clone the repository
+## 1. Clone the repository
 
 ```bash
 git clone <your-repository-url>
 cd WashFlow
 ```
 
-### 2. Backend setup
+## 2. Backend setup
 
 ```bash
 cd backend
@@ -150,7 +150,7 @@ PORT=5001
 
 You can copy `Backend/.env.example` as a starting point.
 
-### 3. Frontend setup
+## 3. Frontend setup
 
 ```bash
 cd ../frontend
@@ -165,23 +165,23 @@ VITE_API_BASE_URL=http://127.0.0.1:5001
 
 You can copy `Frontend/.env.example` as a starting point.
 
-## How To Run The Project
+# How To Run The Project
 
-### Start backend
+## Start backend
 
 ```bash
 cd backend
 npm run dev
 ```
 
-### Start frontend
+## Start frontend
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-### Build checks
+## Build checks
 
 ```bash
 cd backend && npm run build
@@ -190,7 +190,7 @@ cd frontend && npm run build
 cd frontend && npm run lint
 ```
 
-## Demo Flow
+# Demo Flow
 
 1. Sign up as a customer and create a request.
 2. Sign up as an admin and assign the request to a washing center.
@@ -198,7 +198,7 @@ cd frontend && npm run lint
 4. Raise a concern ticket if needed.
 5. Log back in as the customer and confirm the concern ticket.
 
-## Documentation And Deliverables
+# Documentation And Deliverables
 
 - [ER Diagram](diagrams/er-diagram.md)
 - [Use Case Diagram](diagrams/use-case-diagram.md)
@@ -210,7 +210,7 @@ cd frontend && npm run lint
 - [Test Cases](docs/test-cases.md)
 - [Database Schema Draft](db/schema.sql)
 
-## Team Members And Contributions
+# Team Members And Contributions
 
 Current repository attribution:
 
@@ -218,7 +218,7 @@ Current repository attribution:
 
 If additional team members are part of the final course submission, add them here before submission.
 
-## How The Live Demo Was Verified
+# How The Live Demo Was Verified
 
 The following workflows were manually tested against the live application:
 
