@@ -2,7 +2,7 @@
 
 WashFlow is a laundry management website built with React on the frontend and Node.js, Express, TypeScript, and MongoDB on the backend. The system supports role-based workflows for customers, managers, and admins, including request creation, washing center assignment, request tracking, notifications, and concern ticket confirmation.
 
-The implementation uses MongoDB/Mongoose as the real persistence layer. The SQL file under `db/` is kept as a conceptual relational schema draft for ER-diagram traceability, not as the runtime database.
+The implementation uses MongoDB/Mongoose as the real persistence layer. The SQL file under "db/" is kept as a conceptual relational schema draft for ER-diagram traceability, not as the runtime database.
 
 ## Project Overview
 
