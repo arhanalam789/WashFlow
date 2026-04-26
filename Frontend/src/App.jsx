@@ -89,22 +89,41 @@ function App() {
       setIsRefreshing(true)
 
       try {
-        const [user, centerData, requestData, concernData, notificationData] =
-          await Promise.all([
-            apiRequest('/api/auth/me', { token: activeToken }),
-            apiRequest('/api/washing-centers', { token: activeToken }),
-            apiRequest('/api/requests', { token: activeToken }),
-            apiRequest('/api/concerns', { token: activeToken }),
-            apiRequest('/api/notifications', { token: activeToken }),
-          ])
+        const results = await Promise.allSettled([
+          apiRequest('/api/auth/me', { token: activeToken }),
+          apiRequest('/api/washing-centers', { token: activeToken }),
+          apiRequest('/api/requests', { token: activeToken }),
+          apiRequest('/api/concerns', { token: activeToken }),
+          apiRequest('/api/notifications', { token: activeToken }),
+        ])
+
+        const [userResult, centerResult, requestResult, concernResult, notificationResult] =
+          results
+
+        if (userResult.status === 'rejected') {
+          throw userResult.reason
+        }
+
+        const nextFeedback = results
+          .filter((result) => result.status === 'rejected')
+          .map((result) => result.reason?.message)
+          .find(Boolean)
 
         startTransition(() => {
-          setSession((current) => (current ? { ...current, user } : current))
-          setCenters(centerData)
-          setRequests(requestData)
-          setConcerns(concernData)
-          setNotifications(notificationData)
+          setSession((current) =>
+            current ? { ...current, user: userResult.value } : current,
+          )
+          setCenters(centerResult.status === 'fulfilled' ? centerResult.value : [])
+          setRequests(requestResult.status === 'fulfilled' ? requestResult.value : [])
+          setConcerns(concernResult.status === 'fulfilled' ? concernResult.value : [])
+          setNotifications(
+            notificationResult.status === 'fulfilled' ? notificationResult.value : [],
+          )
         })
+
+        if (nextFeedback) {
+          setFeedback(nextFeedback)
+        }
       } catch (error) {
         setFeedback(error.message)
 
