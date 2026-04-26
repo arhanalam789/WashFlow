@@ -216,7 +216,7 @@ Current repository attribution:
 
 - `Arhan Alam` — project architecture, backend implementation, frontend implementation,
 - Abhinav Choudhary - class Diagram, Er Diagram, Sequence Diagram, Workflow verification
-- Rohit kumar - Frontend, Design integration and planning
+- Rohit kumar - Frontend, Diagram, Design integration and planning
 - Kartik Madaan - Frontend, Backend, Database, Design integration
 - Tejas Tyagi - Frontend, Diagram and Deployment
 
