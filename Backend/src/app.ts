@@ -8,17 +8,37 @@ import notificationRouter from "./routes/notifications";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler";
 
 const app: Application = express();
-const allowedOrigins = [
+const configuredOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim()).filter(Boolean)
+  : [];
+
+const allowedOrigins = new Set([
   "https://washflow.vercel.app",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
-  ...(process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim())
-    : []),
-];
+  ...configuredOrigins,
+]);
+
+const isAllowedOrigin = (origin: string | undefined): boolean => {
+  if (!origin) {
+    return true;
+  }
+
+  if (allowedOrigins.has(origin)) {
+    return true;
+  }
+
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === "washflow.vercel.app" || hostname.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+};
+
 const corsOptions = {
   origin(origin: string | undefined, callback: (error: Error | null, success?: boolean) => void) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (isAllowedOrigin(origin)) {
       callback(null, true);
       return;
     }
@@ -30,6 +50,24 @@ const corsOptions = {
 };
 
 // Middleware
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (isAllowedOrigin(origin)) {
+    res.header("Access-Control-Allow-Origin", origin || "*");
+    res.header("Vary", "Origin");
+    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  }
+
+  if (req.method === "OPTIONS") {
+    res.sendStatus(204);
+    return;
+  }
+
+  next();
+});
+
 app.use(cors(corsOptions));
 app.use(express.json());
 
