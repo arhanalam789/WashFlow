@@ -8,9 +8,30 @@ import notificationRouter from "./routes/notifications";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler";
 
 const app: Application = express();
+const allowedOrigins = [
+  "https://washflow.vercel.app",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  ...(process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim())
+    : []),
+];
+const corsOptions = {
+  origin(origin: string | undefined, callback: (error: Error | null, success?: boolean) => void) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 
 // Routes
