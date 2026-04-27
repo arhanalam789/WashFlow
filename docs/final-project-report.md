@@ -10,6 +10,9 @@
 
 - Kartik Madaan
 - Arhan Alam
+- Rohit Godara
+- Abhinav Chaudhary
+- Tejas Tyagi
 
 **Technology Stack:**
 
