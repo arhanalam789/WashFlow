@@ -10,7 +10,7 @@
 
 - Kartik Madaan
 - Arhan Alam
-- Rohit Godara
+- Rohit Kumar
 - Abhinav Chaudhary
 - Tejas Tyagi
 
